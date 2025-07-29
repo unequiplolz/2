@@ -44,9 +44,9 @@ def getBanner():
   █▀▄█▄▀█░▀▀░█░▀▀░█▀▄█▄▀████░▀▀░█░██░██░██▄░██░██▄░██░▀▀▀██░██░
   ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
-Roblox Game Reporter 
-meant for educational learning.
-[ -x00x- ]
+           Roblox Game Reporter 
+           meant for exploring cyber security stuff.
+           [ -x00x- ]
 """
 	bannerLogo = """
 ⠄⠄⠄⠄⠄⠄⠄⠄⠄⠉⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄
