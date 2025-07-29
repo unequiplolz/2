@@ -1,118 +1,114 @@
-#Importing Modules and Setting up proxies and useragents and cookie
+# RBXBan.py
+
 import requests, json, random, time
 from bs4 import BeautifulSoup
 from pystyle import Colorate, Colors, Add, Center, Write
+
 validReports = 0
 
-c = open("cookies.txt", "r").readlines()
-cookies = [i.replace('\n', '') for i in c]
+# Load fake cookies
+with open("cookies.txt", "r") as f:
+	cookies = [line.strip() for line in f.readlines()]
 
-#For Getting Stuff
-class Utils:		
+# Utilities
+class Utils:
 	def getCookie():
-		cookie = random.choice(cookies)
-		return cookie
+		return random.choice(cookies)
 
 	def getRequestVerificationToken(cookie):
-		requestHTML = requests.get(
+		response = requests.get(
 			"https://www.roblox.com/build/upload",
-			headers = {"referer": "https://roblox.com"},
-			cookies = {".ROBLOSECURITY": cookie},
+			headers={"referer": "https://roblox.com"},
+			cookies={".ROBLOSECURITY": cookie}
 		)
-		
-		soup = BeautifulSoup(requestHTML.text, "html.parser")
-		verifyToken = soup.find("input", {"name" : "__RequestVerificationToken"}).attrs["value"]
-		return verifyToken
-		
-	def getOutput(amount, request):
+		soup = BeautifulSoup(response.text, "html.parser")
+		return soup.find("input", {"name": "__RequestVerificationToken"}).attrs["value"]
 
+	def getOutput(amount, request):
+		global validReports
 		if request.status_code == 200:
-			Write.Print(f"\n[{amount}] {request.status_code} |      Report Success      | {request.reason}", Colors.green, interval=0)
-			global validReports
+			Write.Print(f"\n[{amount}] {request.status_code} | Report Success      | {request.reason}", Colors.green, interval=0)
 			validReports += 1
 		elif request.status_code == 429:
-			Write.Print(f"\n[{amount}] {request.status_code} | Rate Limited  (Cooldown) | {request.reason}", Colors.purple_to_red, interval=0)
-			time.sleep(600) #10 Minute Cooldown (in seconds)
+			Write.Print(f"\n[{amount}] {request.status_code} | Rate Limited        | {request.reason}", Colors.purple_to_red, interval=0)
+			time.sleep(600)  # 10 minute cooldown
 		else:
-			Write.Print(f"\n[{amount}] {request.status_code} |      Report  Failed      | {request.reason}", Colors.purple_to_red, interval=0)
+			Write.Print(f"\n[{amount}] {request.status_code} | Report Failed       | {request.reason}", Colors.purple_to_red, interval=0)
 
-#Style & Designs
+# Banner
 def getBanner():
 	bannerText = """
-  __   __       __ 
- |__) |__) \_/ |__)  /\  |\ |
- |  \ |__) / \ |__) /~~\ | \| 
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+█▄▀█▀▄█░▄▄░█░▄▄░█▄▀█▀▄████░▄▄▀█░▄▄▀██░▀██░██░▀██░██░▄▄▄██░▄▄▀
+███░███░▀▄░█░▀▄░███░██████░▄▄▀█░▀▀░██░█░█░██░█░█░██░▄▄▄██░▀▀▄
+█▀▄█▄▀█░▀▀░█░▀▀░█▀▄█▄▀████░▀▀░█░██░██░██▄░██░██▄░██░▀▀▀██░██░
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 
-     Roblox Mass Reporter 
-     1% it acutally bans
-       [ cereb#8577 ]
+     Roblox Game Reporter 
+ meant for educational learning.
+       [ -x00x- ]
 """
-	
 	bannerLogo = """
-         ⣴⣶⣄
-       ⣴⣿⣇⡙⢿⣷⣄
-     ⣴⣿⣿⣄⠨⣍⡀⠙⣿⡇
-   ⣴⣿⣿⡈⣉⠛⢷⣌⣻⣿⠟
- ⣴⠿⢋⣉⠻⢧⡈⢴⣦⣾⠟
- ⢿⣷⣌⠁⣶⢌⣿⣾⠟⢡⣶⣄
-  ⠙⢿⣷⣤⣾⠟   ⠙⢿⣷⣄
-             ⠙⢿⣷⣄
-               ⠙⢿⣷⣄
-                 ⠙⢿⣷⣄
-                   ⠙⡙⣴⣦⠙
-                    ⣌⠛⢋⣴
-
-
+⠄⠄⠄⠄⠄⠄⠄⠄⠄⠉⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄
+⠄⠄⠄⠄⢠⣤⣤⣄⣀⠄⠄⠄⠄⢸⣿⣿⣿⣿⡿⠿⠛⠛⠛⠿⠿⣿⣿⣇
+⠄⠄⠄⠄⠈⠉⠭⠿⢿⡛⠄⠄⠄⣼⣿⣿⣿⣿⣷⣆⣀⣠⣤⣀⣤⣀⡌⢿
+⠄⢀⡀⠄⠄⠄⠄⣀⣠⣆⠄⠄⢠⣿⣿⣿⣿⣿⠋⠉⠉⠉⠿⣿⢿⣿⣿⣾
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣿⣿⣿⣿⣿⣿⣿⣦⣤⣤⣀⣀⣀⣹⣿⡇
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷
+⣿⣿⣿⣿⣿⣿⣿⡿⢫⣶⡿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⡁⠈⠉⠄⠄⠈⠛⠿⣿⠟⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⡿⠄⠄⠄⠄⠄⣶⣾⣿⣷⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⡿⠛⠉⠄⠄⢀⢀⣠⣴⣿⣀⡀⠈⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⡟⠁⠄⠄⠄⠄⠄⠈⠘⠛⠛⠿⣿⣿⣶⣶⣦⣈⠻⣿⣿⣿⣿⣿⣿⣿
+⢻⣿⣧⠄⠄⠄⠄⠄⠙⢿⣿⣷⣶⣶⣶⣶⣶⣦⣭⡉⠄⠈⣿⣿⣿⣿⣿⣿
+⠈⢻⡷⠁⣤⣶⣦⣄⠄⠈⠙⠻⠿⠿⠿⠿⢿⣿⣿⣿⣄⣴⣿⣿⣿⣿⣿⣿
+⣄⠄⠄⠄⠽⣿⣿⣿⣿⣶⣶⣶⣤⣤⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 """
+	return Colorate.Vertical(Colors.purple_to_blue, Center.Center(Add.Add(bannerLogo, bannerText, 0)), 1)
 
-	banner = Colorate.Vertical(Colors.purple_to_blue, Center.Center(Add.Add(bannerLogo, bannerText, 0)), 1)
-	return banner
-
-#Report Function
-	
-def ban(victim, amount, reason, cooldown, comments):
-
+# Report Function (Game Reporter)
+def ban(victim_place_id, amount, reason, cooldown, comments):
 	if amount == 0:
 		amount = 999999999999999
 
-	id = json.loads(requests.post("https://users.roblox.com/v1/usernames/users", json={
-		"usernames": [victim],
-		"excludeBannedUsers": "true"
-	}).text)["data"][0]["id"]
-
-	Write.Print(f"[>] Victim's User ID: {id}\n", Colors.purple_to_blue, interval=0.0025)
+	Write.Print(f"[>] Target Game Place ID: {victim_place_id}\n", Colors.purple_to_blue, interval=0.0025)
 
 	for i in range(amount):
 		time.sleep(cooldown)
 		cookie = Utils.getCookie()
-		session = requests.Session()		
+		session = requests.Session()
 
-		xcsrfToken = requests.post("https://auth.roblox.com/v2/logout", cookies={".ROBLOSECURITY": cookie}) #xcsrfToken only works with requests, not session
-		xcsrfToken = xcsrfToken.headers["x-csrf-token"]
+		# Get X-CSRF Token
+		xcsrf_response = requests.post("https://auth.roblox.com/v2/logout", cookies={".ROBLOSECURITY": cookie})
+		xcsrfToken = xcsrf_response.headers["x-csrf-token"]
 
 		session.cookies.update({".ROBLOSECURITY": cookie})
-		session.headers.update({"referer": "https://www.roblox.com", "x-csrf-token": xcsrfToken})
+		session.headers.update({
+			"referer": "https://www.roblox.com",
+			"x-csrf-token": xcsrfToken
+		})
 
-		requestHTML 			 = session.get("https://www.roblox.com/build/upload")
-		soup 				     = BeautifulSoup(requestHTML.text, "html.parser")
-		requestVerificationToken = soup.find("input", {"name" : "__RequestVerificationToken"}).attrs["value"]
+		# Get request verification token
+		requestHTML = session.get("https://www.roblox.com/build/upload")
+		soup = BeautifulSoup(requestHTML.text, "html.parser")
+		requestVerificationToken = soup.find("input", {"name": "__RequestVerificationToken"}).attrs["value"]
 
+		# Send report request to asset endpoint (game/place)
 		reportRequest = session.post(
-			f"https://www.roblox.com/abusereport/userprofile?id={id}",
-			data = {
+			f"https://www.roblox.com/abusereport/asset?id={victim_place_id}",
+			data={
 				"__RequestVerificationToken": requestVerificationToken,
 				"ReportCategory": reason,
 				"Comment": random.choice(comments),
-				"Id": id,
-				"RedirectUrl": f"https://www.roblox.com/users/{id}/profile,",
+				"Id": victim_place_id,
+				"RedirectUrl": f"https://www.roblox.com/games/{victim_place_id}/",
 				"PartyGuid": "",
 				"ConversationId": ""
 			}
 		)
-		
-		Utils.getOutput(amount=i, request=reportRequest)
 
-	Write.Print(f"\n\n[>] Finished Mass Report.\n[>] Reports Sent: {amount}\n[>] Valid Reports: {validReports}\n\n", Colors.purple_to_blue, interval=0.0025)
-	Write.Input("[>] Enter to Exit...", Colors.purple_to_blue, interval=0.0025)
-	
+		Utils.getOutput(amount=i+1, request=reportRequest)
+
+	Write.Print(f"\n\n[>] Finished Game Report Simulation.\n[>] Reports Sent: {amount}\n[>] Valid Reports: {validReports}\n\n", Colors.purple_to_blue, interval=0.0025)
+	Write.Input("[>] Press Enter to Exit...", Colors.purple_to_blue, interval=0.0025)
 	exit()
